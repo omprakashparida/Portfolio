@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Om Prakash - Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        poppins: ['Poppins', 'sans-serif'],
+                        montserrat: ['Montserrat', 'sans-serif'],
+                        spaceGrotesk: ['Space Grotesk', 'sans-serif'],
+                    },
+                    animation: {
+                        'float-1': 'float-1 4s ease-in-out infinite',
+                        'float-2': 'float-2 4s ease-in-out infinite',
+                        'float-3': 'float-3 4s ease-in-out infinite',
+                        'float-4': 'float-4 4s ease-in-out infinite',
+                        'float-5': 'float-5 4s ease-in-out infinite',
+                        'float-6': 'float-6 4s ease-in-out infinite',
+                        'fade-in-up': 'fade-in-up 0.8s ease-out forwards',
+                    },
+                    keyframes: {
+                        'float-1': {
+                            '0%, 100%': { transform: 'translate(-50%, -50%) translateY(0)' },
+                            '50%': { transform: 'translate(-50%, -50%) translateY(-20px)' },
+                        },
+                        'float-2': {
+                            '0%, 100%': { transform: 'translate(-50%, -50%) translateY(0)' },
+                            '50%': { transform: 'translate(-50%, -50%) translateY(20px)' },
+                        },
+                        'float-3': {
+                            '0%, 100%': { transform: 'translateX(-50%) translateY(-50%) translateY(0)' },
+                            '50%': { transform: 'translateX(-50%) translateY(-50%) translateY(15px)' },
+                        },
+                        'float-4': {
+                            '0%, 100%': { transform: 'translate(0, 0) translateY(0)' },
+                            '50%': { transform: 'translate(0, 0) translateY(-25px)' },
+                        },
+                        'float-5': {
+                            '0%, 100%': { transform: 'translate(0, 0) translateY(0)' },
+                            '50%': { transform: 'translate(0, 0) translateY(18px)' },
+                        },
+                        'float-6': {
+                            '0%, 100%': { transform: 'translateX(50%) translateY(-50%) translateY(0)' },
+                            '50%': { transform: 'translateX(50%) translateY(-50%) translateY(-10px)' },
+                        },
+                        'fade-in-up': {
+                            'from': { opacity: '0', transform: 'translateY(20px)' },
+                            'to': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
