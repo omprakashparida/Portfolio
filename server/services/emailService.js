@@ -16,12 +16,8 @@ class EmailService {
     console.log("Checking Email Credentials...");
 
     if (isProduction) {
-      // ✅ PRODUCTION: EmailJS
-      console.log("Public Key:", process.env.EMAILJS_PUBLIC_KEY ? "Loaded ✅" : "Missing ❌");
-      console.log("Private Key:", process.env.EMAILJS_PRIVATE_KEY ? "Loaded ✅" : "Missing ❌");
-      console.log("Service ID:", process.env.EMAILJS_SERVICE_ID ? "Loaded ✅" : "Missing ❌");
-      console.log("Template ID (Contact):", process.env.EMAILJS_TEMPLATE_ID_CONTACT ? "Loaded ✅" : "Missing ❌");
-      console.log("Template ID (AutoReply):", process.env.EMAILJS_TEMPLATE_ID_AUTOREPLY ? "Loaded ✅" : "Missing ❌");
+      // PRODUCTION: EmailJS
+      console.log(" EmailJS initialized");
 
       // Initialize EmailJS
       emailjs.init({
@@ -29,9 +25,9 @@ class EmailService {
         privateKey: process.env.EMAILJS_PRIVATE_KEY,
       });
     } else {
-      // ✅ LOCAL: Nodemailer
-      console.log("User:", process.env.GMAIL_USER ? "Loaded ✅" : "Missing ❌");
-      console.log("Pass:", process.env.GMAIL_PASS ? "Loaded ✅" : "Missing ❌");
+      // LOCAL: Nodemailer
+      console.log("User:", process.env.GMAIL_USER ? "Loaded " : "Missing ❌");
+      console.log("Pass:", process.env.GMAIL_PASS ? "Loaded " : "Missing ❌");
 
       this.transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
@@ -80,11 +76,16 @@ class EmailService {
       };
 
       const result = await this.transporter.sendMail(mailOptions);
-      console.log('✅ [Nodemailer] Contact email sent:', result.messageId);
+      console.log(' [Nodemailer] Contact email sent:', result.messageId);
       return { success: true, messageId: result.messageId };
     } catch (error) {
-      console.error('❌ [Nodemailer] Contact email failed:', error.message);
-      return { success: false, error: error.message };
+      console.error(" FULL EMAILJS ERROR:");
+      console.dir(error, { depth: null });
+    
+      return {
+        success: false,
+        error: JSON.stringify(error)
+      };
     }
   }
 
@@ -98,11 +99,16 @@ class EmailService {
       };
 
       const result = await this.transporter.sendMail(mailOptions);
-      console.log('✅ [Nodemailer] Auto-reply sent:', result.messageId);
+      console.log(' [Nodemailer] Auto-reply sent:', result.messageId);
       return { success: true, messageId: result.messageId };
     } catch (error) {
-      console.error('❌ [Nodemailer] Auto-reply failed:', error.message);
-      return { success: false, error: error.message };
+      console.error(" FULL EMAILJS ERROR:");
+      console.dir(error, { depth: null });
+    
+      return {
+        success: false,
+        error: JSON.stringify(error)
+      };
     }
   }
 
@@ -205,21 +211,32 @@ class EmailService {
         process.env.EMAILJS_SERVICE_ID,
         process.env.EMAILJS_TEMPLATE_ID_CONTACT,
         {
-          to_email: process.env.GMAIL_USER,
-          title: contactData.title,
-          sender_name: contactData.name,
-          sender_email: contactData.email,
+          name: contactData.name,
+          email: contactData.email,
+          title: "Portfolio Inquiry",
+          time: new Date().toLocaleString(),
           message: contactData.message,
-          ip_address: contactData.ipAddress,
-          submitted_at: new Date().toLocaleString(),
+        },
+        {
+          publicKey: process.env.EMAILJS_PUBLIC_KEY,
+          privateKey: process.env.EMAILJS_PRIVATE_KEY,
         }
       );
-
-      console.log('✅ [EmailJS] Contact email sent:', response.status);
-      return { success: true, messageId: response.status };
+  
+      console.log(" EMAIL SENT:", response);
+  
+      return {
+        success: true,
+        messageId: response?.status || "sent",
+      };
+  
     } catch (error) {
-      console.error('❌ [EmailJS] Contact email failed:', error.message);
-      return { success: false, error: error.message };
+      console.error(" EmailJS Error:", error.text || error);
+    
+      return {
+        success: false,
+        error: error.text || "Failed to send email"
+      };
     }
   }
 
@@ -229,16 +246,30 @@ class EmailService {
         process.env.EMAILJS_SERVICE_ID,
         process.env.EMAILJS_TEMPLATE_ID_AUTOREPLY,
         {
-          to_email: toEmail,
-          recipient_name: name,
+          email: toEmail,
+          name: name,
+          title: "Portfolio Inquiry",
+        },
+        {
+          publicKey: process.env.EMAILJS_PUBLIC_KEY,
+          privateKey: process.env.EMAILJS_PRIVATE_KEY,
         }
       );
-
-      console.log('✅ [EmailJS] Auto-reply sent:', response.status);
-      return { success: true, messageId: response.status };
+  
+      console.log("✅ AUTO REPLY SENT:", response);
+  
+      return {
+        success: true,
+        messageId: response?.status || "sent",
+      };
+  
     } catch (error) {
-      console.error('❌ [EmailJS] Auto-reply failed:', error.message);
-      return { success: false, error: error.message };
+      console.error("❌ EmailJS Error:", error.text || error);
+    
+      return {
+        success: false,
+        error: error.text || "Failed to send email"
+      };
     }
   }
 }
