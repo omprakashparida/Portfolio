@@ -238,7 +238,12 @@ const App = () => {
             const response = await fetch(`${apiUrl}/api/contact/submit`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: name.trim(), email: email.trim(), message: message.trim() })
+                body: JSON.stringify({ 
+                  name: name.trim(), 
+                  email: email.trim(), 
+                  message: message.trim(),
+                  title: `New message from ${name.trim()}` // ✅ Add this
+              })
             });
 
             const data = await response.json();

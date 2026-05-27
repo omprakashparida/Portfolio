@@ -1,54 +1,107 @@
 import nodemailer from 'nodemailer';
+import emailjs from '@emailjs/nodejs';
 import dotenv from 'dotenv';
 
 dotenv.config();
 const envData = dotenv.config();
 console.log("DOTENV PARSE RESULT:", envData);
+
+// Check if we're in production or local
+const isProduction = process.env.NODE_ENV === 'production';
+
+console.log(`🚀 EMAIL SERVICE MODE: ${isProduction ? 'EMAILJS (Production)' : 'NODEMAILER (Local)'}`);
+
 class EmailService {
   constructor() {
-    // Your brilliant debugging logs!
     console.log("Checking Email Credentials...");
-    console.log("User:", process.env.GMAIL_USER ? "Loaded ✅" : "Missing ❌");
-    console.log("Pass:", process.env.GMAIL_PASS ? "Loaded ✅" : "Missing ❌");
 
-    // The Render-Safe Cloud Transporter
-    this.transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true, // Forces SSL
-      auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASS
-      },
-      tls: {
-        rejectUnauthorized: false
-      },
-      family: 4 
-    });
+    if (isProduction) {
+      // ✅ PRODUCTION: EmailJS
+      console.log("Public Key:", process.env.EMAILJS_PUBLIC_KEY ? "Loaded ✅" : "Missing ❌");
+      console.log("Private Key:", process.env.EMAILJS_PRIVATE_KEY ? "Loaded ✅" : "Missing ❌");
+      console.log("Service ID:", process.env.EMAILJS_SERVICE_ID ? "Loaded ✅" : "Missing ❌");
+      console.log("Template ID (Contact):", process.env.EMAILJS_TEMPLATE_ID_CONTACT ? "Loaded ✅" : "Missing ❌");
+      console.log("Template ID (AutoReply):", process.env.EMAILJS_TEMPLATE_ID_AUTOREPLY ? "Loaded ✅" : "Missing ❌");
+
+      // Initialize EmailJS
+      emailjs.init({
+        publicKey: process.env.EMAILJS_PUBLIC_KEY,
+        privateKey: process.env.EMAILJS_PRIVATE_KEY,
+      });
+    } else {
+      // ✅ LOCAL: Nodemailer
+      console.log("User:", process.env.GMAIL_USER ? "Loaded ✅" : "Missing ❌");
+      console.log("Pass:", process.env.GMAIL_PASS ? "Loaded ✅" : "Missing ❌");
+
+      this.transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: {
+          user: process.env.GMAIL_USER,
+          pass: process.env.GMAIL_PASS
+        },
+        tls: {
+          rejectUnauthorized: false
+        },
+        family: 4
+      });
+    }
   }
-  
- 
 
   async sendContactEmail(contactData) {
+    if (isProduction) {
+      return this.sendContactEmailEmailJS(contactData);
+    } else {
+      return this.sendContactEmailNodemailer(contactData);
+    }
+  }
+
+  async sendAutoReply(toEmail, name) {
+    if (isProduction) {
+      return this.sendAutoReplyEmailJS(toEmail, name);
+    } else {
+      return this.sendAutoReplyNodemailer(toEmail, name);
+    }
+  }
+
+  // ============================================
+  // NODEMAILER METHODS (Local)
+  // ============================================
+
+  async sendContactEmailNodemailer(contactData) {
     try {
       const mailOptions = {
-        // FIX 1: This forces Gmail to show their name in your inbox preview
         from: `"${contactData.name} via Portfolio" <${process.env.GMAIL_USER}>`,
-        
-        to: process.env.GMAIL_USER, 
-        
-        // FIX 2: This lets you hit "Reply" in Gmail and email them back directly!
-        replyTo: contactData.email, 
-        
-        subject: `New Contact Form Message from ${contactData.name}`,
+        to: process.env.GMAIL_USER,
+        replyTo: contactData.email,
+        subject: contactData.title,
         html: this.generateEmailTemplate(contactData)
       };
 
       const result = await this.transporter.sendMail(mailOptions);
-      console.log('Email sent successfully:', result.messageId);
+      console.log('✅ [Nodemailer] Contact email sent:', result.messageId);
       return { success: true, messageId: result.messageId };
     } catch (error) {
-      console.error('Email sending failed:', error);
+      console.error('❌ [Nodemailer] Contact email failed:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async sendAutoReplyNodemailer(toEmail, name) {
+    try {
+      const mailOptions = {
+        from: process.env.GMAIL_USER,
+        to: toEmail,
+        subject: 'Thank you for your message - Om Prakash',
+        html: this.generateAutoReplyTemplate(name)
+      };
+
+      const result = await this.transporter.sendMail(mailOptions);
+      console.log('✅ [Nodemailer] Auto-reply sent:', result.messageId);
+      return { success: true, messageId: result.messageId };
+    } catch (error) {
+      console.error('❌ [Nodemailer] Auto-reply failed:', error.message);
       return { success: false, error: error.message };
     }
   }
@@ -107,24 +160,6 @@ class EmailService {
     `;
   }
 
-  async sendAutoReply(toEmail, name) {
-    try {
-      const mailOptions = {
-        from: process.env.GMAIL_USER,
-        to: toEmail,
-        subject: 'Thank you for your message - Om Prakash',
-        html: this.generateAutoReplyTemplate(name)
-      };
-
-      const result = await this.transporter.sendMail(mailOptions);
-      console.log('Auto-reply sent successfully:', result.messageId);
-      return { success: true, messageId: result.messageId };
-    } catch (error) {
-      console.error('Auto-reply sending failed:', error);
-      return { success: false, error: error.message };
-    }
-  }
-
   generateAutoReplyTemplate(name) {
     return `
       <!DOCTYPE html>
@@ -159,6 +194,53 @@ class EmailService {
       </html>
     `;
   }
+
+  // ============================================
+  // EMAILJS METHODS (Production)
+  // ============================================
+
+  async sendContactEmailEmailJS(contactData) {
+    try {
+      const response = await emailjs.send(
+        process.env.EMAILJS_SERVICE_ID,
+        process.env.EMAILJS_TEMPLATE_ID_CONTACT,
+        {
+          to_email: process.env.GMAIL_USER,
+          title: contactData.title,
+          sender_name: contactData.name,
+          sender_email: contactData.email,
+          message: contactData.message,
+          ip_address: contactData.ipAddress,
+          submitted_at: new Date().toLocaleString(),
+        }
+      );
+
+      console.log('✅ [EmailJS] Contact email sent:', response.status);
+      return { success: true, messageId: response.status };
+    } catch (error) {
+      console.error('❌ [EmailJS] Contact email failed:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async sendAutoReplyEmailJS(toEmail, name) {
+    try {
+      const response = await emailjs.send(
+        process.env.EMAILJS_SERVICE_ID,
+        process.env.EMAILJS_TEMPLATE_ID_AUTOREPLY,
+        {
+          to_email: toEmail,
+          recipient_name: name,
+        }
+      );
+
+      console.log('✅ [EmailJS] Auto-reply sent:', response.status);
+      return { success: true, messageId: response.status };
+    } catch (error) {
+      console.error('❌ [EmailJS] Auto-reply failed:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
 }
 
-export default new EmailService(); 
+export default new EmailService();
