@@ -6,19 +6,28 @@ const envData = dotenv.config();
 console.log("DOTENV PARSE RESULT:", envData);
 class EmailService {
   constructor() {
-    // Add a quick console.log here to PROVE the variables are loaded
+    // Your brilliant debugging logs!
     console.log("Checking Email Credentials...");
     console.log("User:", process.env.GMAIL_USER ? "Loaded ✅" : "Missing ❌");
     console.log("Pass:", process.env.GMAIL_PASS ? "Loaded ✅" : "Missing ❌");
 
+    // The Render-Safe Cloud Transporter
     this.transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true, // Forces SSL
       auth: {
         user: process.env.GMAIL_USER,
         pass: process.env.GMAIL_PASS
-      }
+      },
+      tls: {
+        rejectUnauthorized: false
+      },
+      family: 4 
     });
   }
+  
+ 
 
   async sendContactEmail(contactData) {
     try {
