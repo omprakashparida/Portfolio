@@ -488,7 +488,7 @@ const App = () => {
                                 <a href="https://path-forge-zeta.vercel.app" target="_blank" rel="noreferrer" className="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-3.5 rounded-full font-medium transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] flex items-center gap-2">
                                     Launch App <i className="fas fa-arrow-right"></i>
                                 </a>
-                                <a href="https://github.com/omprakashparida" target="_blank" rel="noreferrer" className="bg-white/5 border border-white/10 hover:bg-white/10 text-white px-8 py-3.5 rounded-full font-medium transition-all flex items-center gap-2">
+                                <a href="https://github.com/omprakashparida/Portfolio" target="_blank" rel="noreferrer" className="bg-white/5 border border-white/10 hover:bg-white/10 text-white px-8 py-3.5 rounded-full font-medium transition-all flex items-center gap-2">
                                     <i className="fab fa-github"></i> Source Code
                                 </a>
                             </div>

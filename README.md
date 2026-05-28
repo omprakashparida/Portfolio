@@ -1,5 +1,7 @@
 # 🚀 Om Prakash Parida | Software Engineer Portfolio
 
+🌐 **Live:** https://portfolio-cyan-three-i833758tdg.vercel.app
+
 ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
 ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
 ![Express.js](https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB)
@@ -63,8 +65,9 @@ Open a new terminal window and navigate to the client directory:
 Bash
 cd client
 npm install
-Create a .env file in the root of the client directory:
 
+Create a .env file in the root of the client directory:
+VITE_API_URL=http://localhost:5000
 
 Bash
 npm run dev
